@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 디지털혁신 사업계획 현황 | 행정안전부 기획조정실</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --panel:#ffffff; --line:#e2e6ec; --text:#1b2430; --muted:#5f6b7a;
+    --brand:#12457f; --brand-soft:#e8f0fa; --accent:#0f766e;
+    --c1:#12457f; --c2:#b3261e; --c3:#0f766e; --c4:#8a6d1f;
+    --radius:10px; --shadow:0 1px 3px rgba(20,30,45,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:"Malgun Gothic","맑은 고딕",-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55}
+  header.gov{background:var(--brand);color:#fff;padding:20px 24px}
+  header.gov .wrap{max-width:1180px;margin:0 auto}
+  header.gov .eyebrow{font-size:12.5px;letter-spacing:.06em;opacity:.85}
+  header.gov h1{margin:4px 0 2px;font-size:23px;font-weight:700}
+  header.gov .sub{font-size:13px;opacity:.85}
+  main{max-width:1180px;margin:0 auto;padding:22px 24px 56px}
+  section{margin-bottom:26px}
+  h2{font-size:16.5px;margin:0 0 12px;padding-left:9px;border-left:4px solid var(--brand)}
+
+  /* 요약 KPI */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow)}
+  .kpi .label{font-size:12.5px;color:var(--muted)}
+  .kpi .value{font-size:24px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .value small{font-size:13px;font-weight:500;color:var(--muted);margin-left:3px}
+
+  /* 검색 · 필터 */
+  .searchbar{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:11px}
+  .searchbar .row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  .searchbar .row+.row{padding-top:11px;border-top:1px dashed var(--line)}
+  .searchbar label,.searchbar .row-label{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .searchbar label.tight{margin-left:6px}
+  .searchbar label.check{font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer}
+  .searchbar input[type=search]{flex:1 1 240px;min-width:180px;padding:9px 12px;font-size:15px;
+    border:1px solid #c8d0da;border-radius:6px;font-family:inherit}
+  .searchbar select,.searchbar input[type=number]{padding:8px 10px;font-size:13.5px;font-family:inherit;
+    border:1px solid #c8d0da;border-radius:6px;background:#fff;color:var(--text)}
+  .searchbar input[type=number]{width:92px}
+  .searchbar .range{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted)}
+  .searchbar :is(input,select):focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+  .row-conds{row-gap:9px}
+  .row-conds .btn-reset{margin-left:auto}
+  /* 적용된 조건 태그 */
+  .row-tags{gap:6px}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;background:var(--brand-soft);
+    color:var(--brand);border:1px solid #c3d6ec;border-radius:999px;padding:3px 6px 3px 11px}
+  .tag button{border:none;background:#c3d6ec;color:var(--brand);width:17px;height:17px;line-height:1;
+    border-radius:50%;cursor:pointer;font-size:12px;font-family:inherit;padding:0}
+  .tag button:hover{background:var(--brand);color:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid #c8d0da;background:#fff;color:var(--text);border-radius:999px;
+    padding:6px 13px;font-size:13px;cursor:pointer;font-family:inherit}
+  .chip[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+  .btn-reset{border:1px solid #c8d0da;background:#fff;border-radius:6px;padding:7px 12px;
+    font-size:13px;cursor:pointer;color:var(--muted);font-family:inherit}
+  .resultline{margin:12px 0 14px;font-size:14px;color:var(--muted)}
+  .resultline b{color:var(--brand);font-size:16px}
+
+  /* 카드 */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--f);
+    border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+  .card .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .card .no{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .badge{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;
+    color:var(--f);background:#f4f6f9;border:1px solid #d5dbe3}          /* 구형 브라우저 대비 */
+  @supports (background:color-mix(in srgb,red 10%,#fff)){
+    .badge{background:color-mix(in srgb,var(--f) 12%,#fff);border-color:color-mix(in srgb,var(--f) 32%,#fff)}
+  }
+  .card h3{margin:0;font-size:15.5px;font-weight:700;line-height:1.4}
+  .card .org{margin:0;font-size:12.5px;color:var(--muted)}
+  .card .budget{margin-top:auto;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+  .card .budget small{font-size:12.5px;font-weight:500;color:var(--muted);margin-left:3px}
+  .card mark{background:#fff3b0;color:inherit;padding:0 1px;border-radius:2px}
+  .empty{background:var(--panel);border:1px dashed #c8d0da;border-radius:var(--radius);
+    padding:34px;text-align:center;color:var(--muted)}
+
+  /* 집계표 */
+  table{width:100%;border-collapse:collapse;background:var(--panel);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  caption{text-align:left;font-size:12.5px;color:var(--muted);padding:0 0 7px}
+  th,td{padding:10px 13px;border-bottom:1px solid var(--line);font-size:14px;text-align:right}
+  th{background:var(--brand-soft);color:var(--brand);font-weight:600;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  td{font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:none}
+  tfoot td{background:#f7f9fc;font-weight:700;border-top:2px solid var(--brand)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--f);margin-right:7px;vertical-align:1px}
+  .bar{height:7px;border-radius:4px;background:var(--f);min-width:3px;display:inline-block;vertical-align:middle}
+  .barcell{width:180px;text-align:left!important}
+  footer{max-width:1180px;margin:0 auto;padding:0 24px 30px;font-size:12.5px;color:var(--muted)}
+  @media (max-width:560px){.barcell{display:none}}
+</style>
+</head>
+<body>
+<header class="gov">
+  <div class="wrap">
+    <p class="eyebrow">행정안전부 기획조정실</p>
+    <h1>2026년 디지털혁신 사업계획 현황</h1>
+    <p class="sub">사업 카드 검색 · 분야별 예산 집계 (단위: 백만원)</p>
+  </div>
+</header>
+
+<main>
+  <section aria-label="총괄 요약">
+    <h2>총괄 요약</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="label">총 사업 수</div><div class="value" id="kpiCount">–<small>건</small></div></div>
+      <div class="kpi"><div class="label">총 예산</div><div class="value" id="kpiBudget">–<small>백만원</small></div></div>
+      <div class="kpi"><div class="label">분야 수</div><div class="value" id="kpiFields">–<small>개</small></div></div>
+      <div class="kpi"><div class="label">사업당 평균 예산</div><div class="value" id="kpiAvg">–<small>백만원</small></div></div>
+    </div>
+  </section>
+
+  <section aria-label="사업 검색 및 필터">
+    <h2>사업 검색 · 필터</h2>
+    <div class="searchbar">
+      <div class="row row-search">
+        <label for="q">키워드</label>
+        <input type="search" id="q" placeholder="사업명 또는 분야로 검색 (예: 챗봇, 정보보안)" autocomplete="off">
+        <label for="scope" class="tight">검색 대상</label>
+        <select id="scope">
+          <option value="all">사업명 + 분야</option>
+          <option value="name">사업명만</option>
+          <option value="field">분야만</option>
+        </select>
+        <label class="check"><input type="checkbox" id="exact"> 정확히 일치</label>
+      </div>
+
+      <div class="row">
+        <span class="row-label">분야</span>
+        <div class="chips" id="chips" role="group" aria-label="분야 필터"></div>
+      </div>
+
+      <div class="row row-conds">
+        <label for="org">주관기관</label>
+        <select id="org"><option value="전체">전체</option></select>
+
+        <label for="budget">예산 구간</label>
+        <select id="budget">
+          <option value="전체">전체</option>
+          <option value="0-999">1,000백만원 미만</option>
+          <option value="1000-2999">1,000 ~ 2,999</option>
+          <option value="3000-4999">3,000 ~ 4,999</option>
+          <option value="5000-">5,000백만원 이상</option>
+        </select>
+
+        <label for="min">예산 직접 지정</label>
+        <span class="range">
+          <input type="number" id="min" min="0" step="100" placeholder="최소" aria-label="최소 예산">
+          <span>~</span>
+          <input type="number" id="max" min="0" step="100" placeholder="최대" aria-label="최대 예산">
+        </span>
+
+        <label for="sort">정렬</label>
+        <select id="sort">
+          <option value="no">사업번호순</option>
+          <option value="budget-desc">예산 많은순</option>
+          <option value="budget-asc">예산 적은순</option>
+          <option value="name">사업명 가나다순</option>
+          <option value="field">분야순</option>
+        </select>
+
+        <button class="btn-reset" id="reset" type="button">조건 초기화</button>
+      </div>
+
+      <div class="row row-tags" id="condTags" hidden></div>
+    </div>
+    <p class="resultline" id="resultline" role="status" aria-live="polite"></p>
+    <div class="cards" id="cards"></div>
+    <div class="empty" id="empty" hidden>검색 결과가 없습니다. 다른 키워드를 입력해 주세요.</div>
+  </section>
+
+  <section aria-label="분야별 집계">
+    <h2>분야별 집계</h2>
+    <table>
+      <caption id="tblCaption">현재 검색 조건에 해당하는 사업 기준 · 건수 내림차순</caption>
+      <thead>
+        <tr><th scope="col">분야</th><th scope="col">사업 건수</th><th scope="col">예산 합계(백만원)</th>
+            <th scope="col">예산 비중</th><th scope="col" class="barcell">비중</th></tr>
+      </thead>
+      <tbody id="aggBody"></tbody>
+      <tfoot><tr id="aggFoot"></tr></tfoot>
+    </table>
+  </section>
+</main>
+
+<footer>
+  출처: 사업계획데이터.json (35건) · 예산 단위는 백만원 · 본 페이지는 외부 통신 없이 동작하는 단일 정적 HTML입니다.
+</footer>
+
+<script>
+/* ── 원천 데이터 (사업계획데이터.json 내장) ───────────────────────── */
+const DATA = [
+{"사업번호":"D26-001","사업명":"전자정부 모바일 통합 플랫폼 구축","분야":"디지털전환","예산_백만원":4500,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-002","사업명":"국민비서 알림서비스 확대","분야":"디지털전환","예산_백만원":1800,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-003","사업명":"AI 민원상담 챗봇 고도화","분야":"디지털전환","예산_백만원":2300,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-004","사업명":"공공 클라우드 전환 가속화","분야":"디지털전환","예산_백만원":6700,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-005","사업명":"지방행정 디지털 협업 플랫폼","분야":"디지털전환","예산_백만원":3200,"주관기관":"지방자치인재개발원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-006","사업명":"디지털 정부 표준 가이드 보급","분야":"디지털전환","예산_백만원":1100,"주관기관":"한국지능정보사회진흥원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-007","사업명":"스마트 시청 통합 운영","분야":"디지털전환","예산_백만원":2800,"주관기관":"각 지자체","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-008","사업명":"디지털 신분증 확산","분야":"디지털전환","예산_백만원":3900,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-009","사업명":"공무원 디지털 협업 도구 확대","분야":"디지털전환","예산_백만원":1600,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-010","사업명":"주민서비스 챗봇 통합","분야":"디지털전환","예산_백만원":2100,"주관기관":"지자체","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-011","사업명":"디지털 행정 표준 데이터 모델","분야":"디지털전환","예산_백만원":1400,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-012","사업명":"정부24 차세대 서비스 개편","분야":"디지털전환","예산_백만원":5200,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-013","사업명":"정부 통합 사이버 보안 관제센터 운영","분야":"정보보안","예산_백만원":3800,"주관기관":"국가정보자원관리원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-014","사업명":"주요 정보시스템 제로트러스트 도입","분야":"정보보안","예산_백만원":2900,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-015","사업명":"악성코드 대응 자동화 체계","분야":"정보보안","예산_백만원":1700,"주관기관":"한국인터넷진흥원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-016","사업명":"개인정보 영향평가 의무화 확산","분야":"정보보안","예산_백만원":950,"주관기관":"개인정보보호위원회","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-017","사업명":"국가 인증 보안 인프라 고도화","분야":"정보보안","예산_백만원":4100,"주관기관":"국가정보원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-018","사업명":"국가행정망 망분리 재설계","분야":"정보보안","예산_백만원":5500,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-019","사업명":"DDoS 대응 회선 증설","분야":"정보보안","예산_백만원":1300,"주관기관":"한국인터넷진흥원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-020","사업명":"보안관제 인력 양성","분야":"정보보안","예산_백만원":800,"주관기관":"한국정보보호산업협회","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-021","사업명":"공공데이터 개방 품질 관리","분야":"데이터","예산_백만원":1500,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-022","사업명":"데이터 댐 지속 확장 사업","분야":"데이터","예산_백만원":4700,"주관기관":"과학기술정보통신부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-023","사업명":"공공 마이데이터 활용 확대","분야":"데이터","예산_백만원":2200,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-024","사업명":"AI 학습용 데이터 구축","분야":"데이터","예산_백만원":6300,"주관기관":"지능정보사회진흥원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-025","사업명":"데이터 표준화·메타데이터 관리","분야":"데이터","예산_백만원":1800,"주관기관":"통계청","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-026","사업명":"범부처 데이터 통합 분석 플랫폼","분야":"데이터","예산_백만원":3500,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-027","사업명":"도시데이터 시각화 대시보드","분야":"데이터","예산_백만원":1200,"주관기관":"지자체","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-028","사업명":"디지털 격차 해소 교육 프로그램","분야":"기타","예산_백만원":1100,"주관기관":"한국지능정보사회진흥원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-029","사업명":"국민 디지털 역량 진단 도구 운영","분야":"기타","예산_백만원":700,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-030","사업명":"디지털 정부 국제 협력 사업","분야":"기타","예산_백만원":1900,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-031","사업명":"지방 공무원 AI 역량 강화","분야":"기타","예산_백만원":1400,"주관기관":"지방자치인재개발원","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-032","사업명":"디지털 윤리 가이드라인 보급","분야":"기타","예산_백만원":600,"주관기관":"방송통신위원회","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-033","사업명":"스마트워크 공간 조성","분야":"기타","예산_백만원":2500,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-034","사업명":"디지털혁신 우수사례 확산","분야":"기타","예산_백만원":800,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"},
+{"사업번호":"D26-035","사업명":"국민 참여형 디지털 혁신 공모전","분야":"기타","예산_백만원":500,"주관기관":"행정안전부","기간":"2026-01 ~ 2026-12"}
+];
+
+/* ── 분야별 색상 ──────────────────────────────────────────────── */
+const PALETTE = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','#6b21a8','#155e75'];
+const FIELDS = [...new Set(DATA.map(d => d.분야))];
+const colorOf = f => PALETTE[FIELDS.indexOf(f) % PALETTE.length];
+
+const nf = n => n.toLocaleString('ko-KR');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hl = (text, kw) => {                       // 검색어 강조 (원문에서 찾고 조각별로 이스케이프)
+  if (!kw) return esc(text);
+  const re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+  let out = '', last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    out += esc(text.slice(last, m.index)) + `<mark>${esc(m[0])}</mark>`;
+    last = m.index + m[0].length;
+    if (m[0] === '') re.lastIndex++;             // 빈 매치 무한루프 방지
+  }
+  return out + esc(text.slice(last));
+};
+
+/* ── 필터 상태 ────────────────────────────────────────────────── */
+const DEFAULTS = { keyword:'', scope:'all', exact:false, field:'전체', org:'전체',
+                   preset:'전체', min:null, max:null, sort:'no' };
+let S = { ...DEFAULTS };
+
+const $ = id => document.getElementById(id);
+const ORGS = [...new Set(DATA.map(d => d.주관기관))].sort((a,b)=>a.localeCompare(b,'ko'));
+const SCOPE_LABEL = { all:'사업명 + 분야', name:'사업명만', field:'분야만' };
+const SORT_LABEL = { no:'사업번호순', 'budget-desc':'예산 많은순', 'budget-asc':'예산 적은순',
+                     name:'사업명 가나다순', field:'분야순' };
+const PRESET_RANGE = { '전체':[null,null], '0-999':[null,999], '1000-2999':[1000,2999],
+                       '3000-4999':[3000,4999], '5000-':[5000,null] };
+
+/* 총괄 KPI (전체 데이터 고정) */
+(function renderKpi(){
+  const total = DATA.reduce((s,d)=>s+d.예산_백만원, 0);
+  $('kpiCount').innerHTML  = nf(DATA.length) + '<small>건</small>';
+  $('kpiBudget').innerHTML = nf(total) + '<small>백만원</small>';
+  $('kpiFields').innerHTML = nf(FIELDS.length) + '<small>개</small>';
+  $('kpiAvg').innerHTML    = nf(Math.round(total / DATA.length)) + '<small>백만원</small>';
+})();
+
+/* 분야 필터 칩 (건수 함께 표시) */
+(function renderChips(){
+  const box = $('chips');
+  const count = f => f === '전체' ? DATA.length : DATA.filter(d => d.분야 === f).length;
+  ['전체', ...FIELDS].forEach(f => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.field = f;
+    b.textContent = `${f} ${count(f)}`;
+    b.setAttribute('aria-pressed', String(f === S.field));
+    b.onclick = () => { S.field = f; render(); };
+    box.appendChild(b);
+  });
+})();
+
+/* 주관기관 선택 목록 */
+(function renderOrgOptions(){
+  const sel = $('org');
+  ORGS.forEach(o => {
+    const n = DATA.filter(d => d.주관기관 === o).length;
+    sel.insertAdjacentHTML('beforeend', `<option value="${esc(o)}">${esc(o)} (${n})</option>`);
+  });
+})();
+
+/* ── 필터링: 키워드(사업명/분야) + 분야 + 주관기관 + 예산범위 조건을 모두 AND ── */
+function filtered(){
+  const kw = S.keyword.trim().toLowerCase();
+  return DATA.filter(d => {
+    // 1) 키워드 — 검색 대상(사업명/분야)과 일치 방식(부분/정확)을 조건으로 적용
+    let okKw = true;
+    if (kw) {
+      const targets = S.scope === 'name' ? [d.사업명]
+                    : S.scope === 'field' ? [d.분야]
+                    : [d.사업명, d.분야];
+      okKw = targets.some(t => {
+        const v = t.toLowerCase();
+        return S.exact ? v === kw : v.includes(kw);
+      });
+    }
+    // 2) 분야 3) 주관기관 4) 예산 범위
+    const okField = S.field === '전체' || d.분야 === S.field;
+    const okOrg   = S.org === '전체' || d.주관기관 === S.org;
+    const okMin   = S.min === null || d.예산_백만원 >= S.min;
+    const okMax   = S.max === null || d.예산_백만원 <= S.max;
+    return okKw && okField && okOrg && okMin && okMax;
+  }).sort(sorter);
+}
+
+function sorter(a, b){
+  switch (S.sort) {
+    case 'budget-desc': return b.예산_백만원 - a.예산_백만원 || a.사업번호.localeCompare(b.사업번호);
+    case 'budget-asc':  return a.예산_백만원 - b.예산_백만원 || a.사업번호.localeCompare(b.사업번호);
+    case 'name':        return a.사업명.localeCompare(b.사업명, 'ko');
+    case 'field':       return FIELDS.indexOf(a.분야) - FIELDS.indexOf(b.분야)
+                             || a.사업번호.localeCompare(b.사업번호);
+    default:            return a.사업번호.localeCompare(b.사업번호);
+  }
+}
+
+/* 적용 중인 조건을 태그로 표시 (× 로 개별 해제) */
+function renderCondTags(){
+  const tags = [];
+  if (S.keyword.trim()) tags.push(['keyword', `키워드: ${S.keyword.trim()}`]);
+  if (S.scope !== 'all') tags.push(['scope', `검색 대상: ${SCOPE_LABEL[S.scope]}`]);
+  if (S.exact) tags.push(['exact', '정확히 일치']);
+  if (S.field !== '전체') tags.push(['field', `분야: ${S.field}`]);
+  if (S.org !== '전체') tags.push(['org', `주관기관: ${S.org}`]);
+  if (S.min !== null || S.max !== null) {
+    const label = S.min !== null && S.max !== null ? `${nf(S.min)} ~ ${nf(S.max)}백만원`
+                : S.min !== null ? `${nf(S.min)}백만원 이상` : `${nf(S.max)}백만원 이하`;
+    tags.push(['budget', `예산: ${label}`]);
+  }
+  if (S.sort !== 'no') tags.push(['sort', `정렬: ${SORT_LABEL[S.sort]}`]);
+
+  const box = $('condTags');
+  box.hidden = tags.length === 0;
+  box.innerHTML = tags.length
+    ? `<span class="row-label">적용 조건</span>` + tags.map(([k, text]) =>
+        `<span class="tag">${esc(text)}<button type="button" data-clear="${k}" aria-label="${esc(text)} 조건 해제">×</button></span>`).join('')
+    : '';
+  box.querySelectorAll('button[data-clear]').forEach(b =>
+    b.onclick = () => clearCondition(b.dataset.clear));
+}
+
+function clearCondition(key){
+  if (key === 'keyword') { S.keyword = ''; $('q').value = ''; }
+  if (key === 'scope')   { S.scope = 'all'; $('scope').value = 'all'; }
+  if (key === 'exact')   { S.exact = false; $('exact').checked = false; }
+  if (key === 'field')   { S.field = '전체'; }
+  if (key === 'org')     { S.org = '전체'; $('org').value = '전체'; }
+  if (key === 'budget')  { S.preset = '전체'; S.min = S.max = null;
+                           $('budget').value = '전체'; $('min').value = ''; $('max').value = ''; }
+  if (key === 'sort')    { S.sort = 'no'; $('sort').value = 'no'; }
+  render();
+}
+
+function renderCards(rows){
+  const kw = S.keyword.trim();
+  const kwName  = kw && S.scope !== 'field' ? kw : '';   // 검색 대상에 맞춰서만 강조
+  const kwField = kw && S.scope !== 'name'  ? kw : '';
+  $('empty').hidden = rows.length > 0;
+  $('cards').innerHTML = rows.map(d => `
+    <article class="card" style="--f:${colorOf(d.분야)}">
+      <div class="top">
+        <span class="no">${esc(d.사업번호)}</span>
+        <span class="badge">${hl(d.분야, kwField)}</span>
+      </div>
+      <h3>${hl(d.사업명, kwName)}</h3>
+      <p class="org">${esc(d.주관기관)} · ${esc(d.기간)}</p>
+      <div class="budget">${nf(d.예산_백만원)}<small>백만원</small></div>
+    </article>`).join('');
+}
+
+function renderAgg(rows){
+  const map = new Map();
+  rows.forEach(d => {
+    const a = map.get(d.분야) || { 건수:0, 예산:0 };
+    a.건수 += 1; a.예산 += d.예산_백만원;
+    map.set(d.분야, a);
+  });
+  // 건수 내림차순 → 동률이면 분야명 가나다순
+  const list = [...map.entries()].sort((a,b) => b[1].건수 - a[1].건수 || a[0].localeCompare(b[0],'ko'));
+  const sumC = rows.length;
+  const sumB = rows.reduce((s,d)=>s+d.예산_백만원, 0);
+
+  $('aggBody').innerHTML = list.length ? list.map(([f,a]) => {
+    const pct = sumB ? a.예산 / sumB * 100 : 0;
+    return `<tr style="--f:${colorOf(f)}">
+      <td><span class="dot"></span>${esc(f)}</td>
+      <td>${nf(a.건수)}</td>
+      <td>${nf(a.예산)}</td>
+      <td>${pct.toFixed(1)}%</td>
+      <td class="barcell"><span class="bar" style="width:${Math.max(pct,1).toFixed(1)}%"></span></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--muted)">해당 사업이 없습니다.</td></tr>`;
+
+  $('aggFoot').innerHTML = `<td>합계 (${list.length}개 분야)</td><td>${nf(sumC)}</td>
+    <td>${nf(sumB)}</td><td>${sumB ? '100.0%' : '–'}</td><td class="barcell"></td>`;
+}
+
+function render(){
+  const rows = filtered();
+  document.querySelectorAll('.chip').forEach(c =>
+    c.setAttribute('aria-pressed', String(c.dataset.field === S.field)));
+
+  const hasCond = JSON.stringify(S) !== JSON.stringify({ ...DEFAULTS, sort:S.sort });
+  $('resultline').innerHTML =
+    `${hasCond ? '검색 결과 ' : '전체 '}<b>${nf(rows.length)}</b>건 (전체 ${nf(DATA.length)}건 중)` +
+    ` · 예산 합계 <b>${nf(rows.reduce((s,d)=>s+d.예산_백만원,0))}</b>백만원` +
+    `${S.sort !== 'no' ? ` · ${SORT_LABEL[S.sort]} 정렬` : ''}`;
+  $('tblCaption').textContent = hasCond
+    ? '현재 필터 조건에 해당하는 사업 기준 · 건수 내림차순(동률 시 분야명순)'
+    : '전체 사업 기준 · 건수 내림차순(동률 시 분야명순)';
+
+  renderCondTags();
+  renderCards(rows);
+  renderAgg(rows);
+}
+
+/* ── 이벤트 배선 ──────────────────────────────────────────────── */
+const num = v => v.trim() === '' || isNaN(Number(v)) ? null : Number(v);
+
+$('q').addEventListener('input',   e => { S.keyword = e.target.value; render(); });
+$('scope').addEventListener('change', e => { S.scope = e.target.value; render(); });
+$('exact').addEventListener('change', e => { S.exact = e.target.checked; render(); });
+$('org').addEventListener('change',   e => { S.org = e.target.value; render(); });
+$('sort').addEventListener('change',  e => { S.sort = e.target.value; render(); });
+
+// 예산 구간 선택 → 최소/최대 입력칸에 반영 (조건의 단일 기준은 최소/최대값)
+$('budget').addEventListener('change', e => {
+  S.preset = e.target.value;
+  const [lo, hi] = PRESET_RANGE[S.preset] ?? [null, null];
+  S.min = lo; S.max = hi;
+  $('min').value = lo ?? ''; $('max').value = hi ?? '';
+  render();
+});
+// 직접 입력 시에는 구간 선택을 '전체'로 되돌려 조건 충돌을 없앰
+['min','max'].forEach(id => $(id).addEventListener('input', () => {
+  S.min = num($('min').value); S.max = num($('max').value);
+  S.preset = '전체'; $('budget').value = '전체';
+  render();
+}));
+
+$('reset').addEventListener('click', () => {
+  S = { ...DEFAULTS };
+  $('q').value = ''; $('scope').value = 'all'; $('exact').checked = false;
+  $('org').value = '전체'; $('budget').value = '전체';
+  $('min').value = ''; $('max').value = ''; $('sort').value = 'no';
+  $('q').focus();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
