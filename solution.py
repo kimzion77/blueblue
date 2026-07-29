@@ -7,14 +7,16 @@
          (지원 형태 1) <!-- 분야: 디지털전환 -->
          (지원 형태 2) - 분야: 디지털전환
   처리 : 원본은 그대로 두고 출력_분야별/<분야명>/ 하위로 복사(shutil.copy2)
-  출력 : 분야별 파일 수를 콘솔에 출력 + 결과_분류현황.csv 저장
-         (헤더 '분야명,건수' / 건수 내림차순 / 동률이면 분야명 가나다순 / UTF-8)
+  출력 : ① 분야별 파일 수를 콘솔에 출력
+         ② 결과_분류현황.csv  (헤더 '분야명,건수' / 건수 내림차순 / 동률이면 분야명 가나다순 / UTF-8)
+         ③ 제출물.md          (과제 산출물 요약 보고서)
 
 사용 예:
-  python 분야별_자동분류.py
-  python 분야별_자동분류.py --input 사업상세 --output 출력_분야별 --csv 결과_분류현황.csv
-  python 분야별_자동분류.py --clean        # 기존 출력 폴더를 지우고 새로 생성
+  python solution.py
+  python solution.py --input 사업상세 --output 출력_분야별 --csv 결과_분류현황.csv
+  python solution.py --clean        # 기존 출력 폴더를 지우고 새로 생성
 
+같은 입력이면 항상 같은 출력이 나오도록 실행 시각 등 비결정적 값은 넣지 않습니다.
 표준 라이브러리(argparse, csv, pathlib, re, shutil, sys)만 사용합니다.
 """
 
@@ -30,6 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_INPUT = "사업상세"
 DEFAULT_OUTPUT = "출력_분야별"
 DEFAULT_CSV = "결과_분류현황.csv"
+DEFAULT_MD = "제출물.md"
 UNKNOWN_FIELD = "미분류"  # 분야 값을 찾지 못한 파일을 모아두는 폴더명
 
 # '분야:' 값 추출 패턴 (HTML 주석형 → 목록형 순으로 시도)
@@ -128,7 +131,80 @@ def write_csv(rows: list[tuple[str, int]], csv_path: Path, use_bom: bool) -> Non
         writer.writerows(rows)
 
 
-def print_report(rows, total, input_dir, output_dir, csv_path, warnings) -> None:
+def write_md(rows, total, input_dir, output_dir, csv_path, md_path, warnings) -> None:
+    """제출물.md 저장 — 과제 산출물 요약 보고서."""
+    lines = [
+        "# 디지털혁신 사업계획 — 사업 상세문서 분야별 자동분류 결과",
+        "",
+        "## 1. 과제 개요",
+        "",
+        f"`{input_dir.name}/` 폴더의 사업 상세문서(`.md`) {total}건을 각 문서에 기재된 "
+        f"`분야:` 값에 따라 자동 분류하고, 분야별 건수를 집계하여 CSV로 저장하였음.",
+        "",
+        "## 2. 산출물",
+        "",
+        "| 산출물 | 설명 |",
+        "| --- | --- |",
+        "| `solution.py` | 분야별 자동분류 스크립트 (표준 라이브러리만 사용) |",
+        f"| `{csv_path.name}` | 분야별 건수 집계 (헤더 `분야명,건수` / 건수 내림차순 / UTF-8) |",
+        f"| `{md_path.name}` | 본 요약 보고서 |",
+        f"| `{output_dir.name}/` | 분야별 하위 폴더에 분류 완료된 사본 |",
+        "",
+        "## 3. 처리 절차",
+        "",
+        f"1. **입력** — `{input_dir.name}/*.md` 파일을 파일명 순으로 읽음",
+        "2. **분야 추출** — 각 문서에서 `분야:` 값을 추출 "
+        "(`<!-- 분야: X -->` 주석형, `- 분야: X` 목록형 모두 인식)",
+        f"3. **분류** — `{output_dir.name}/<분야명>/` 하위로 복사. "
+        "`shutil.copy2`를 사용하여 **원본은 이동·변경 없이 그대로 보존**",
+        f"4. **집계** — 분야별 건수를 산출하여 `{csv_path.name}` 저장 "
+        "(건수 내림차순, 동률 시 분야명 가나다순)",
+        "",
+        "## 4. 분류 결과",
+        "",
+        "| 순위 | 분야명 | 건수 | 비율 |",
+        "| --- | --- | --- | --- |",
+    ]
+    for rank, (field, count) in enumerate(rows, start=1):
+        ratio = count / total * 100 if total else 0
+        lines.append(f"| {rank} | {field} | {count}건 | {ratio:.1f}% |")
+    lines += [
+        f"| — | **합계** | **{total}건** | **100.0%** |",
+        "",
+        f"- 총 {total}건, {len(rows)}개 분야로 분류 완료",
+        f"- 최다 분야: **{rows[0][0]}** ({rows[0][1]}건)" if rows else "- 분류된 파일 없음",
+        f"- 분야값 누락({UNKNOWN_FIELD}) 건수: {dict(rows).get(UNKNOWN_FIELD, 0)}건",
+        "",
+        "## 5. 실행 방법",
+        "",
+        "```bash",
+        "python solution.py --clean",
+        "```",
+        "",
+        "| 옵션 | 설명 |",
+        "| --- | --- |",
+        "| `--input` / `-i` | 입력 폴더 지정 |",
+        "| `--output` / `-o` | 출력 폴더 지정 |",
+        "| `--csv` / `-c` | 결과 CSV 경로 지정 |",
+        "| `--md` / `-m` | 요약 보고서 경로 지정 |",
+        "| `--clean` | 실행 전 출력 폴더 초기화 |",
+        "| `--bom` | CSV를 UTF-8 BOM으로 저장(엑셀 한글 깨짐 방지) |",
+        "",
+        "## 6. 예외 처리",
+        "",
+        f"- `분야:` 값을 찾지 못한 파일은 `{UNKNOWN_FIELD}` 폴더로 분류하고 콘솔에 경고 출력",
+        "- 파일명이 중복되면 `이름 (2).md` 형식으로 번호를 부여하여 덮어쓰기 방지",
+        "- 분야명에 폴더명으로 쓸 수 없는 문자가 있으면 `_`로 치환",
+        "- 입력 인코딩은 UTF-8 → UTF-8(BOM) → CP949 순으로 시도",
+        "- 실행 시각 등 비결정적 값을 넣지 않으므로 **같은 입력이면 항상 같은 산출물**이 생성됨",
+    ]
+    if warnings:
+        lines += ["", "### 경고 내역", ""] + [f"- {w}" for w in warnings]
+    lines.append("")
+    md_path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def print_report(rows, total, input_dir, output_dir, csv_path, md_path, warnings) -> None:
     """콘솔 리포트 출력."""
     width = max([len(f) for f, _ in rows] + [6])
     print()
@@ -148,7 +224,9 @@ def print_report(rows, total, input_dir, output_dir, csv_path, warnings) -> None
     print("=" * 46)
     for msg in warnings:
         print(f" [경고] {msg}")
-    print(f" CSV 저장 완료 : {csv_path}")
+    print(f" 산출물 ① CSV  : {csv_path}")
+    print(f" 산출물 ② 보고서: {md_path}")
+    print(f" 산출물 ③ 분류본: {output_dir}")
     print()
 
 
@@ -159,6 +237,7 @@ def main(argv=None) -> int:
     parser.add_argument("--input", "-i", default=DEFAULT_INPUT, help=f"입력 폴더 (기본: {DEFAULT_INPUT})")
     parser.add_argument("--output", "-o", default=DEFAULT_OUTPUT, help=f"출력 폴더 (기본: {DEFAULT_OUTPUT})")
     parser.add_argument("--csv", "-c", default=DEFAULT_CSV, help=f"결과 CSV 파일 (기본: {DEFAULT_CSV})")
+    parser.add_argument("--md", "-m", default=DEFAULT_MD, help=f"요약 보고서 파일 (기본: {DEFAULT_MD})")
     parser.add_argument("--clean", action="store_true", help="실행 전 출력 폴더를 비움")
     parser.add_argument("--bom", action="store_true", help="CSV를 UTF-8 BOM으로 저장(엑셀에서 한글 깨짐 방지)")
     args = parser.parse_args(argv)
@@ -167,7 +246,8 @@ def main(argv=None) -> int:
         p = Path(value)
         return p if p.is_absolute() else BASE_DIR / p
 
-    input_dir, output_dir, csv_path = resolve(args.input), resolve(args.output), resolve(args.csv)
+    input_dir, output_dir = resolve(args.input), resolve(args.output)
+    csv_path, md_path = resolve(args.csv), resolve(args.md)
 
     if not input_dir.is_dir():
         raise SystemExit(f"[오류] 입력 폴더를 찾을 수 없습니다: {input_dir}")
@@ -175,7 +255,8 @@ def main(argv=None) -> int:
     counts, warnings, total = classify(input_dir, output_dir, args.clean)
     rows = sort_counts(counts)
     write_csv(rows, csv_path, args.bom)
-    print_report(rows, total, input_dir, output_dir, csv_path, warnings)
+    write_md(rows, total, input_dir, output_dir, csv_path, md_path, warnings)
+    print_report(rows, total, input_dir, output_dir, csv_path, md_path, warnings)
     return 0
 
 
