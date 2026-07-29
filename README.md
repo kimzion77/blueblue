@@ -38,7 +38,7 @@ python solution.py --clean
 |---|---|
 | `solution.py` | 분류 스크립트 본체 |
 | `결과_분류현황.csv` | 헤더 `분야명,건수` / 건수 내림차순 / 동률이면 분야명 가나다순 / UTF-8 |
-| `제출물.md` | 과제 개요 · 산출물 목록 · 처리 절차 · 분류 결과표(순위·건수·비율) · 실행 방법 · 예외 처리 |
+| `제출물.md` | 사용 AI 도구 1줄 + 구현 메모 5줄 (실행 결과값이 문장에 반영됨) |
 
 옵션: `--input` `--output` `--csv` `--md` 경로 지정, `--clean` 출력 폴더 초기화, `--bom` 엑셀용 UTF-8 BOM 저장
 
@@ -54,7 +54,7 @@ python solution.py --clean
 index.html                 산출물 1 — 정적 웹 페이지
 solution.py                산출물 2 — 분류 자동화 스크립트
 결과_분류현황.csv           분류 결과 집계 (solution.py 생성)
-제출물.md                   과제 요약 보고서 (solution.py 생성)
+제출물.md                   사용 AI 도구·구현 메모 (solution.py 생성)
 출력_분야별/               분류 결과 폴더(스크립트로 재생성, 커밋 제외)
 vercel.json                Vercel 정적 배포 설정
 ```

@@ -9,7 +9,7 @@
   처리 : 원본은 그대로 두고 출력_분야별/<분야명>/ 하위로 복사(shutil.copy2)
   출력 : ① 분야별 파일 수를 콘솔에 출력
          ② 결과_분류현황.csv  (헤더 '분야명,건수' / 건수 내림차순 / 동률이면 분야명 가나다순 / UTF-8)
-         ③ 제출물.md          (과제 산출물 요약 보고서)
+         ③ 제출물.md          (사용 AI 도구 + 구현 메모 3~5줄)
 
 사용 예:
   python solution.py
@@ -131,75 +131,31 @@ def write_csv(rows: list[tuple[str, int]], csv_path: Path, use_bom: bool) -> Non
         writer.writerows(rows)
 
 
-def write_md(rows, total, input_dir, output_dir, csv_path, md_path, warnings) -> None:
-    """제출물.md 저장 — 과제 산출물 요약 보고서."""
+def write_md(rows, total, csv_path, md_path, warnings) -> None:
+    """제출물.md 저장 — 사용 AI 도구 + 구현 메모(3~5줄)."""
+    top = f"{rows[0][0]} {rows[0][1]}건" if rows else "없음"
+    unknown = dict(rows).get(UNKNOWN_FIELD, 0)
     lines = [
-        "# 디지털혁신 사업계획 — 사업 상세문서 분야별 자동분류 결과",
+        "# 제출물 — 사업 상세문서 분야별 자동분류",
         "",
-        "## 1. 과제 개요",
+        "## 사용 AI 도구",
         "",
-        f"`{input_dir.name}/` 폴더의 사업 상세문서(`.md`) {total}건을 각 문서에 기재된 "
-        f"`분야:` 값에 따라 자동 분류하고, 분야별 건수를 집계하여 CSV로 저장하였음.",
+        "- Claude Code (Anthropic Claude Opus 5) — 코드 작성 및 검증",
         "",
-        "## 2. 산출물",
+        "## 구현 메모",
         "",
-        "| 산출물 | 설명 |",
-        "| --- | --- |",
-        "| `solution.py` | 분야별 자동분류 스크립트 (표준 라이브러리만 사용) |",
-        f"| `{csv_path.name}` | 분야별 건수 집계 (헤더 `분야명,건수` / 건수 내림차순 / UTF-8) |",
-        f"| `{md_path.name}` | 본 요약 보고서 |",
-        f"| `{output_dir.name}/` | 분야별 하위 폴더에 분류 완료된 사본 |",
-        "",
-        "## 3. 처리 절차",
-        "",
-        f"1. **입력** — `{input_dir.name}/*.md` 파일을 파일명 순으로 읽음",
-        "2. **분야 추출** — 각 문서에서 `분야:` 값을 추출 "
-        "(`<!-- 분야: X -->` 주석형, `- 분야: X` 목록형 모두 인식)",
-        f"3. **분류** — `{output_dir.name}/<분야명>/` 하위로 복사. "
-        "`shutil.copy2`를 사용하여 **원본은 이동·변경 없이 그대로 보존**",
-        f"4. **집계** — 분야별 건수를 산출하여 `{csv_path.name}` 저장 "
-        "(건수 내림차순, 동률 시 분야명 가나다순)",
-        "",
-        "## 4. 분류 결과",
-        "",
-        "| 순위 | 분야명 | 건수 | 비율 |",
-        "| --- | --- | --- | --- |",
-    ]
-    for rank, (field, count) in enumerate(rows, start=1):
-        ratio = count / total * 100 if total else 0
-        lines.append(f"| {rank} | {field} | {count}건 | {ratio:.1f}% |")
-    lines += [
-        f"| — | **합계** | **{total}건** | **100.0%** |",
-        "",
-        f"- 총 {total}건, {len(rows)}개 분야로 분류 완료",
-        f"- 최다 분야: **{rows[0][0]}** ({rows[0][1]}건)" if rows else "- 분류된 파일 없음",
-        f"- 분야값 누락({UNKNOWN_FIELD}) 건수: {dict(rows).get(UNKNOWN_FIELD, 0)}건",
-        "",
-        "## 5. 실행 방법",
-        "",
-        "```bash",
-        "python solution.py --clean",
-        "```",
-        "",
-        "| 옵션 | 설명 |",
-        "| --- | --- |",
-        "| `--input` / `-i` | 입력 폴더 지정 |",
-        "| `--output` / `-o` | 출력 폴더 지정 |",
-        "| `--csv` / `-c` | 결과 CSV 경로 지정 |",
-        "| `--md` / `-m` | 요약 보고서 경로 지정 |",
-        "| `--clean` | 실행 전 출력 폴더 초기화 |",
-        "| `--bom` | CSV를 UTF-8 BOM으로 저장(엑셀 한글 깨짐 방지) |",
-        "",
-        "## 6. 예외 처리",
-        "",
-        f"- `분야:` 값을 찾지 못한 파일은 `{UNKNOWN_FIELD}` 폴더로 분류하고 콘솔에 경고 출력",
-        "- 파일명이 중복되면 `이름 (2).md` 형식으로 번호를 부여하여 덮어쓰기 방지",
-        "- 분야명에 폴더명으로 쓸 수 없는 문자가 있으면 `_`로 치환",
-        "- 입력 인코딩은 UTF-8 → UTF-8(BOM) → CP949 순으로 시도",
-        "- 실행 시각 등 비결정적 값을 넣지 않으므로 **같은 입력이면 항상 같은 산출물**이 생성됨",
+        "- 각 `.md` 문서의 `분야:` 값을 정규식 2종(`<!-- 분야: X -->` 주석형, `- 분야: X` 목록형)으로 "
+        f"추출하고, 값이 없으면 `{UNKNOWN_FIELD}`로 처리함(현재 {unknown}건).",
+        f"- `shutil.copy2`로 `출력_분야별/<분야명>/`에 복사하여 원본 {total}건은 이동·변경 없이 보존함.",
+        f"- 집계는 건수 내림차순, 동률 시 분야명 가나다순으로 정렬해 `{csv_path.name}`(UTF-8)에 저장함"
+        f" — {len(rows)}개 분야, 최다 {top}.",
+        "- 표준 라이브러리(argparse·csv·pathlib·re·shutil)만 사용하고, 폴더명 불가 문자 치환·"
+        "파일명 중복 시 `(2)` 부여·인코딩 3종 폴백을 예외 처리함.",
+        "- 실행 시각 등 비결정적 값을 넣지 않아 같은 입력이면 항상 같은 산출물이 생성됨"
+        "(2회 실행 시 CSV·MD 해시 일치 확인).",
     ]
     if warnings:
-        lines += ["", "### 경고 내역", ""] + [f"- {w}" for w in warnings]
+        lines += ["", "## 경고 내역", ""] + [f"- {w}" for w in warnings]
     lines.append("")
     md_path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -225,7 +181,7 @@ def print_report(rows, total, input_dir, output_dir, csv_path, md_path, warnings
     for msg in warnings:
         print(f" [경고] {msg}")
     print(f" 산출물 ① CSV  : {csv_path}")
-    print(f" 산출물 ② 보고서: {md_path}")
+    print(f" 산출물 ② 메모  : {md_path}")
     print(f" 산출물 ③ 분류본: {output_dir}")
     print()
 
@@ -237,7 +193,7 @@ def main(argv=None) -> int:
     parser.add_argument("--input", "-i", default=DEFAULT_INPUT, help=f"입력 폴더 (기본: {DEFAULT_INPUT})")
     parser.add_argument("--output", "-o", default=DEFAULT_OUTPUT, help=f"출력 폴더 (기본: {DEFAULT_OUTPUT})")
     parser.add_argument("--csv", "-c", default=DEFAULT_CSV, help=f"결과 CSV 파일 (기본: {DEFAULT_CSV})")
-    parser.add_argument("--md", "-m", default=DEFAULT_MD, help=f"요약 보고서 파일 (기본: {DEFAULT_MD})")
+    parser.add_argument("--md", "-m", default=DEFAULT_MD, help=f"제출 메모 파일 (기본: {DEFAULT_MD})")
     parser.add_argument("--clean", action="store_true", help="실행 전 출력 폴더를 비움")
     parser.add_argument("--bom", action="store_true", help="CSV를 UTF-8 BOM으로 저장(엑셀에서 한글 깨짐 방지)")
     args = parser.parse_args(argv)
@@ -255,7 +211,7 @@ def main(argv=None) -> int:
     counts, warnings, total = classify(input_dir, output_dir, args.clean)
     rows = sort_counts(counts)
     write_csv(rows, csv_path, args.bom)
-    write_md(rows, total, input_dir, output_dir, csv_path, md_path, warnings)
+    write_md(rows, total, csv_path, md_path, warnings)
     print_report(rows, total, input_dir, output_dir, csv_path, md_path, warnings)
     return 0
 
